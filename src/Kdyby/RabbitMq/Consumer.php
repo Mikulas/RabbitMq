@@ -15,6 +15,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  *
  * @method onStart(Consumer $self)
  * @method onConsume(Consumer $self, AMQPMessage $msg)
+ * @method onConsumeStop(Consumer $self, AMQPMessage $msg)
  * @method onReject(Consumer $self, AMQPMessage $msg, $processFlag)
  * @method onAck(Consumer $self, AMQPMessage $msg)
  * @method onError(Consumer $self, AMQPExceptionInterface $e)
@@ -27,6 +28,11 @@ class Consumer extends BaseConsumer
 	 * @var array
 	 */
 	public $onConsume = array();
+
+	/**
+	 * @var array
+	 */
+	public $onConsumeStop = array();
 
 	/**
 	 * @var array
@@ -157,6 +163,7 @@ class Consumer extends BaseConsumer
 		try {
 			$processFlag = call_user_func($this->callback, $msg);
 			$this->handleProcessMessage($msg, $processFlag);
+			$this->onConsumeStop($this, $msg);
 
 		} catch (TerminateException $e) {
 			$this->handleProcessMessage($msg, $e->getResponse());
